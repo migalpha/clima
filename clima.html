@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="climaApp" ng-controller="climaController">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>El Tiempo</title>
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<style type="text/css"> 
+	body { 
+	background: #1abc9c;
+	color: whitesmoke;
+	font-family: 'Open Sans', sans-serif; }
+	.btn {
+	  -webkit-border-radius: 25;
+	  -moz-border-radius: 25;
+	  border-radius: 25px;
+	  color: whitesmoke;
+	  font-size: 12px;
+	  background: #2ecc71;
+	  padding: 10px 20px 10px 20px;
+	  border: solid #2ecc71 0px;
+	  text-decoration: none;
+	}
+	.btn:hover {
+	  background: #27ae60;
+	  text-decoration: none;
+	} 
+</style> 
+</head>
+<body>
+	<header>
+		<h2>
+			EL Tiempo
+		</h2>
+	</header>
+	<section>
+		<label for="buscar">Indique la ciudad</label>
+		<input type="search" ng-model="buscar" name="buscar">
+		<button class="btn" ng-click="buscarClima()">Buscar</button>
+		<div ng-show='mostrar'>
+			<h3>{{ciudad}}</h3>
+			<img ng-src="{{ruta}}"><span><b>{{temperatura}}°C</b></span> <span><b>{{descripcion}}</b></span>	
+			<p>Nubosidad: {{nubosidad}}%</p>
+			<p>Humedad: {{humedad}}%</p>
+			<p>Presión: {{presion}}hpa</p>
+			<p>Viento: {{viento}}m/s</p>
+			<p>Salida del Sol: {{ssol * 1000 | date:'HH:mm:ss Z': 'UTC'}}</p>
+			<p>Puesta del Sol: {{psol * 1000 | date:'HH:mm:ss Z': 'UTC'}}</p>
+		</div>
+	</section>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+<script type="text/javascript">
+	var app = angular.module('climaApp',[])
+	app.controller('climaController',['$scope','$http',function($scope,$http){
+		$scope.ciudad 	= 'Santiago'
+		$scope.mostrar 	= false 
+		$scope.buscarClima = function(){
+			var url = 'http://api.openweathermap.org/data/2.5/weather?q='+$scope.buscar+'&lang=es&units=metric&APPID=ac0ba9da87f46e65db52b4507dd0c602'
+			 $http.get(url).success(function(respuesta){
+			 	console.debug(respuesta)
+			 	$scope.temperatura 	= respuesta.main.temp
+			 	$scope.nubosidad 	= respuesta.clouds.all
+			 	$scope.humedad		= respuesta.main.humidity
+			 	$scope.presion 		= respuesta.main.pressure	
+			 	$scope.ciudad 		= respuesta.name
+			 	$scope.viento 		= respuesta.wind.speed
+			 	$scope.descripcion 	= respuesta.weather[0].description
+			 	$scope.mostrar 		= true
+			 	$scope.ruta 		= 'http://openweathermap.org/img/w/'+respuesta.weather[0].icon+'.png'
+			 	$scope.ssol 		= respuesta.sys.sunrise
+			 	$scope.psol 		= respuesta.sys.sunset		
+			 })
+		}
+	}])
+</script>
+</body>
+</html>
